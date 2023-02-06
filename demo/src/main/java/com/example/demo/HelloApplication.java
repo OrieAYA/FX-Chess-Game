@@ -163,9 +163,18 @@ public class HelloApplication extends Application {
             {"WT","WK","WF","WKi","WQ","WF","WK","WT"}
     };
 
-    List<EventHandler<MouseEvent>> moovements = new ArrayList<>();
+    List<ArrayList<EventHandler<MouseEvent>>> moovements = new ArrayList<>();
 
     private GridPane setup(){
+
+        for(int i = 0; i<8; i++) {
+            ArrayList<EventHandler<MouseEvent>> a = new ArrayList<>();
+            for (int j = 0; j < 8; j++) {
+                a.add(null);
+            }
+            moovements.add(a);
+        }
+
         GridPane root = new GridPane();
         StackPane node;
         String path = "";
@@ -244,7 +253,6 @@ public class HelloApplication extends Application {
         return root;
     }
 
-    //Montrer les mouvements ( cases jaunes )
     private EventHandler showMooves(int i, int j, StackPane node, GridPane root){
 
         int finalI = i;
@@ -255,25 +263,33 @@ public class HelloApplication extends Application {
             @Override
             public void handle(MouseEvent mouseEvent) {
 
-
+                boolean[][] choices = new boolean[8][8];
 
                 setOriginalColors(root);
 
                 switch (mat[finalI][finalJ]){
                     case "BP":
                         possibleMoove(findNode(root,finalJ,finalI+1), finalNode, Bpon, this, root);
+                        choices[finalI+1][finalJ] = true;
                         if(finalI==1){
                             possibleMoove(findNode(root,finalJ,finalI+2), finalNode, Bpon, this, root);
+                            choices[finalI+2][finalJ] = true;
                         }
                         break;
                 }
+
+                for(int k = 0; k<8; k++) {
+                    for (int l = 0; l < 8; l++) {
+                        if(mat[k][l] == "" && !choices[k][l])findNode(root,l,k).removeEventFilter(MouseEvent.MOUSE_PRESSED, moovements.get(k).get(l));
+                    }
+                }
+
             }
         };
 
         return showMooves;
     }
 
-    //Faire un mouvement ( déplacer )
     private void possibleMoove(Node node, StackPane act, String path, EventHandler show, GridPane root){
 
         EventHandler<MouseEvent> moove = new EventHandler<MouseEvent>() {
@@ -295,7 +311,7 @@ public class HelloApplication extends Application {
 
         node.setStyle("-fx-background-color: YELLOW");
         node.addEventFilter(MouseEvent.MOUSE_PRESSED, moove);
-        moovements.add(moove);
+        moovements.get(root.getRowIndex(node)).set(root.getColumnIndex(node), moove);
     }
 
     private void setOriginalColors(GridPane gridPane){
