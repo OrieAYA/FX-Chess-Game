@@ -2,6 +2,7 @@ package com.example.demo;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -25,9 +26,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class HelloApplication extends Application {
 
@@ -136,21 +135,27 @@ public class HelloApplication extends Application {
 
      */
 
-    final String Wpon = "file:WPon.png";
-    final String WTower = "file:WTower.png";
-    final String WKnight = "file:WKnight.png";
-    final String WFou = "file:WFou.png";
-    final String WKing = "file:WKing.png";
-    final String WQueen = "file:WQueen.png";
+    final String WP = "file:WPon.png";
+    final String WT = "file:WTower.png";
+    final String WK = "file:WKnight.png";
+    final String WF = "file:WFou.png";
+    final String WKi = "file:WKing.png";
+    final String WQ = "file:WQueen.png";
 
-    final String Bpon = "file:BPon.png";
-    final String BTower = "file:BTower.png";
-    final String BKnight = "file:BKnight.png";
-    final String BFou = "file:BFou.png";
-    final String BKing = "file:BKing.png";
-    final String BQueen = "file:BQueen.png";
+    final String BP = "file:BPon.png";
+    final String BT = "file:BTower.png";
+    final String BK = "file:BKnight.png";
+    final String BF = "file:BFou.png";
+    final String BKi = "file:BKing.png";
+    final String BQ = "file:BQueen.png";
 
     final String noPiece = "file:nopiece.png";
+
+    boolean w = true;
+
+    Stage stage;
+
+    final Map<String, String> paths = new HashMap<>();
 
     String[][] mat = {
             {"BT","BK","BF","BKi","BQ","BF","BK","BT"},
@@ -163,89 +168,24 @@ public class HelloApplication extends Application {
             {"WT","WK","WF","WKi","WQ","WF","WK","WT"}
     };
 
-    List<ArrayList<EventHandler<MouseEvent>>> moovements = new ArrayList<>();
-
-    private GridPane setup(){
-
-        for(int i = 0; i<8; i++) {
-            ArrayList<EventHandler<MouseEvent>> a = new ArrayList<>();
-            for (int j = 0; j < 8; j++) {
-                a.add(null);
-            }
-            moovements.add(a);
-        }
+    private GridPane setup(boolean white){
 
         GridPane root = new GridPane();
         StackPane node;
-        String path = "";
 
         for(int i = 0; i<8; i++){
             for(int j = 0; j<8; j++){
 
                 node = new StackPane();
-
-                if(i == 0){
-                    switch(j+1){
-                        case 1:
-                        case 8:
-                            path = BTower;
-                            break;
-                        case 2:
-                        case 7:
-                            path = BKnight;
-                            break;
-                        case 3:
-                        case 6:
-                            path = BFou;
-                            break;
-                        case 4:
-                            path = BKing;
-                            break;
-                        case 5:
-                            path = BQueen;
-                            break;
-                    }
-                } else if (i == 1) {
-                    path = Bpon;
-                }
-                else if(i == 7){
-                    switch(j+1){
-                        case 1:
-                        case 8:
-                            path = WTower;
-                            break;
-                        case 2:
-                        case 7:
-                            path = WKnight;
-                            break;
-                        case 3:
-                        case 6:
-                            path = WFou;
-                            break;
-                        case 4:
-                            path = WKing;
-                            break;
-                        case 5:
-                            path = WQueen;
-                            break;
-                    }
-                } else if (i == 6) {
-                    path = Wpon;
-                }
-                else{
-                    path = noPiece;
-                }
-
-                node.getChildren().add(new ImageView(new Image(path)));
-
+                node.getChildren().add(new ImageView(new Image(paths.get(mat[i][j]))));
                 node.setPadding(new Insets(20,20,20,20));
 
-                node.addEventFilter(MouseEvent.MOUSE_PRESSED, showMooves(i, j, node, root));
+                if(white)node.addEventFilter(MouseEvent.MOUSE_PRESSED, showMoovesW(i, j, node, root));
+                else node.addEventFilter(MouseEvent.MOUSE_PRESSED, showMoovesB(i, j, node, root));
 
                 root.add(node, j, i);
 
             }
-
         }
 
         setOriginalColors(root);
@@ -253,7 +193,7 @@ public class HelloApplication extends Application {
         return root;
     }
 
-    private EventHandler showMooves(int i, int j, StackPane node, GridPane root){
+    private EventHandler showMoovesB(int i, int j, StackPane node, GridPane root){
 
         int finalI = i;
         int finalJ = j;
@@ -263,25 +203,42 @@ public class HelloApplication extends Application {
             @Override
             public void handle(MouseEvent mouseEvent) {
 
-                boolean[][] choices = new boolean[8][8];
-
                 setOriginalColors(root);
 
                 switch (mat[finalI][finalJ]){
                     case "BP":
-                        possibleMoove(findNode(root,finalJ,finalI+1), finalNode, Bpon, this, root);
-                        choices[finalI+1][finalJ] = true;
+                        possibleMoove(findNode(root,finalJ,finalI+1), finalNode, BP, this, root);
                         if(finalI==1){
-                            possibleMoove(findNode(root,finalJ,finalI+2), finalNode, Bpon, this, root);
-                            choices[finalI+2][finalJ] = true;
+                            possibleMoove(findNode(root,finalJ,finalI+2), finalNode, BP, this, root);
                         }
                         break;
                 }
 
-                for(int k = 0; k<8; k++) {
-                    for (int l = 0; l < 8; l++) {
-                        if(mat[k][l] == "" && !choices[k][l])findNode(root,l,k).removeEventFilter(MouseEvent.MOUSE_PRESSED, moovements.get(k).get(l));
-                    }
+            }
+        };
+
+        return showMooves;
+    }
+
+    private EventHandler showMoovesW(int i, int j, StackPane node, GridPane root){
+
+        int finalI = i;
+        int finalJ = j;
+        StackPane finalNode = node;
+
+        EventHandler<MouseEvent> showMooves = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+
+                setOriginalColors(root);
+
+                switch (mat[finalI][finalJ]){
+                    case "WP":
+                        possibleMoove(findNode(root,finalJ,finalI-1), finalNode, BP, this, root);
+                        if(finalI==6){
+                            possibleMoove(findNode(root,finalJ,finalI-2), finalNode, BP, this, root);
+                        }
+                        break;
                 }
 
             }
@@ -292,26 +249,33 @@ public class HelloApplication extends Application {
 
     private void possibleMoove(Node node, StackPane act, String path, EventHandler show, GridPane root){
 
+        Timer timer = new Timer();
+
         EventHandler<MouseEvent> moove = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
 
                 StackPane n = (StackPane) node;
-                n.getChildren().clear();
-                n.getChildren().add(new ImageView(new Image(path)));
                 mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = "BP";
-                n.addEventFilter(MouseEvent.MOUSE_PRESSED, showMooves(GridPane.getRowIndex(n), GridPane.getColumnIndex(n), n, root));
 
                 mat[GridPane.getRowIndex(act)][GridPane.getColumnIndex(act)] = "";
-                act.getChildren().clear();
-                act.getChildren().add(new ImageView(new Image(noPiece)));
                 act.removeEventFilter(MouseEvent.MOUSE_PRESSED, show);
+
+                game(stage);
             }
         };
 
         node.setStyle("-fx-background-color: YELLOW");
         node.addEventFilter(MouseEvent.MOUSE_PRESSED, moove);
-        moovements.get(root.getRowIndex(node)).set(root.getColumnIndex(node), moove);
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                node.removeEventHandler(MouseEvent.MOUSE_PRESSED, moove);
+                setOriginalColors(root);
+            }
+        }, 5 * 1000);
+
     }
 
     private void setOriginalColors(GridPane gridPane){
@@ -334,16 +298,47 @@ public class HelloApplication extends Application {
         return null;
     }
 
-    @Override
-    public void start(Stage stage) throws IOException {
+    private void game(Stage stage){
 
-        GridPane root = setup();
+        stage.setScene(new Scene(setup(w = !w),520,520));
+        stage.show();
+
+    }
+
+    @Override
+    public void start(Stage st) throws IOException {
+
+        stage = st;
+
+        paths.put("WP", WP);
+        paths.put("WT", WT);
+        paths.put("WK", WK);
+        paths.put("WF", WF);
+        paths.put("WKi", WKi);
+        paths.put("WQ", WQ);
+        paths.put("WP", WP);
+        paths.put("WT", WT);
+        paths.put("WK", WK);
+        paths.put("WF", WF);
+        paths.put("WKi", WKi);
+        paths.put("WQ", WQ);
+        paths.put("BP", BP);
+        paths.put("BT", BT);
+        paths.put("BK", BK);
+        paths.put("BF", BF);
+        paths.put("BKi", BKi);
+        paths.put("BQ", BQ);
+        paths.put("", noPiece);
+
+        GridPane root = setup(w);
 
         //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(root,520,520);//fxmlLoader.load(), 320, 240);
         stage.setTitle("Chess");
         stage.setScene(scene);
+        stage.setScene(new Scene(setup(w = !w),520,520));
         stage.show();
+
     }
 
     public static void main(String[] args) {
