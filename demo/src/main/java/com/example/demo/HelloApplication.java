@@ -151,7 +151,7 @@ public class HelloApplication extends Application {
 
     final String noPiece = "file:nopiece.png";
 
-    boolean w = true;
+    boolean w = false;
 
     Stage stage;
 
@@ -207,9 +207,9 @@ public class HelloApplication extends Application {
 
                 switch (mat[finalI][finalJ]){
                     case "BP":
-                        possibleMoove(findNode(root,finalJ,finalI+1), finalNode, BP, this, root);
+                        possibleMoove(findNode(root,finalJ,finalI+1), finalNode, root);
                         if(finalI==1){
-                            possibleMoove(findNode(root,finalJ,finalI+2), finalNode, BP, this, root);
+                            possibleMoove(findNode(root,finalJ,finalI+2), finalNode, root);
                         }
                         break;
                 }
@@ -234,9 +234,9 @@ public class HelloApplication extends Application {
 
                 switch (mat[finalI][finalJ]){
                     case "WP":
-                        possibleMoove(findNode(root,finalJ,finalI-1), finalNode, BP, this, root);
+                        possibleMoove(findNode(root,finalJ,finalI-1), finalNode, root);
                         if(finalI==6){
-                            possibleMoove(findNode(root,finalJ,finalI-2), finalNode, BP, this, root);
+                            possibleMoove(findNode(root,finalJ,finalI-2), finalNode, root);
                         }
                         break;
                 }
@@ -247,19 +247,16 @@ public class HelloApplication extends Application {
         return showMooves;
     }
 
-    private void possibleMoove(Node node, StackPane act, String path, EventHandler show, GridPane root){
-
-        Timer timer = new Timer();
+    private void possibleMoove(Node node, StackPane act, GridPane root){
 
         EventHandler<MouseEvent> moove = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
 
                 StackPane n = (StackPane) node;
-                mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = "BP";
+                mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = mat[GridPane.getRowIndex(act)][GridPane.getColumnIndex(act)];
 
                 mat[GridPane.getRowIndex(act)][GridPane.getColumnIndex(act)] = "";
-                act.removeEventFilter(MouseEvent.MOUSE_PRESSED, show);
 
                 game(stage);
             }
@@ -267,14 +264,6 @@ public class HelloApplication extends Application {
 
         node.setStyle("-fx-background-color: YELLOW");
         node.addEventFilter(MouseEvent.MOUSE_PRESSED, moove);
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                node.removeEventHandler(MouseEvent.MOUSE_PRESSED, moove);
-                setOriginalColors(root);
-            }
-        }, 5 * 1000);
 
     }
 
@@ -330,12 +319,7 @@ public class HelloApplication extends Application {
         paths.put("BQ", BQ);
         paths.put("", noPiece);
 
-        GridPane root = setup(w);
-
-        //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(root,520,520);//fxmlLoader.load(), 320, 240);
         stage.setTitle("Chess");
-        stage.setScene(scene);
         stage.setScene(new Scene(setup(w = !w),520,520));
         stage.show();
 
