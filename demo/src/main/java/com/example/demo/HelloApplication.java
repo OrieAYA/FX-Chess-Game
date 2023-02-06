@@ -244,6 +244,7 @@ public class HelloApplication extends Application {
         return root;
     }
 
+    //Montrer les mouvements ( cases jaunes )
     private EventHandler showMooves(int i, int j, StackPane node, GridPane root){
 
         int finalI = i;
@@ -254,13 +255,7 @@ public class HelloApplication extends Application {
             @Override
             public void handle(MouseEvent mouseEvent) {
 
-                for (Node n : root.getChildren()) {
-                    if(mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] == ""){
-                        for (EventHandler ev : moovements){
-                            n.removeEventFilter(MouseEvent.MOUSE_PRESSED, ev);
-                        }
-                    }
-                }
+
 
                 setOriginalColors(root);
 
@@ -278,6 +273,7 @@ public class HelloApplication extends Application {
         return showMooves;
     }
 
+    //Faire un mouvement ( déplacer )
     private void possibleMoove(Node node, StackPane act, String path, EventHandler show, GridPane root){
 
         EventHandler<MouseEvent> moove = new EventHandler<MouseEvent>() {
