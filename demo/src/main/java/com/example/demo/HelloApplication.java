@@ -60,6 +60,10 @@ public class HelloApplication extends Application {
 
     boolean canMoove = false;
 
+    String player1;
+
+    String player2;
+
     String[][] mat = {
             {"BT","BK","BF","BKi","BQ","BF","BK","BT"},
             {"BP","BP","BP","BP","BP","BP","BP","BP"},
@@ -72,6 +76,20 @@ public class HelloApplication extends Application {
     };
 
     private GridPane setup(boolean white){
+
+        GridPane scene = new GridPane();
+
+        scene.setStyle("-fx-background-color: DARKGOLDENROD");
+
+        StackPane versus = new StackPane();
+        Text v = new Text(player1 + " - versus - " + player2);
+        v.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+
+        versus.getChildren().add(v);
+        versus.setPadding(new Insets(20,20,20,20));
+        versus.setAlignment(Pos.CENTER);
+
+        scene.add(versus, 0, 0);
 
         canMoove = false;
 
@@ -98,7 +116,9 @@ public class HelloApplication extends Application {
 
         setOriginalColors(root);
 
-        return root;
+        scene.add(root, 0, 1);
+
+        return scene;
     }
 
     private EventHandler showMooves(int i, int j, StackPane node, GridPane root){
@@ -407,13 +427,13 @@ public class HelloApplication extends Application {
 
     private void game(Stage stage){
 
-        stage.setScene(new Scene(setup(w = !w), 520, 520));
+        stage.setScene(new Scene(setup(w = !w), 520, 585));
         stage.show();
 
         if(!w && !KiExist("BKi")){
-            resultBoard("White won !");
+            resultBoard(player1 + " won !");
         } else if (w && !KiExist("WKi")) {
-            resultBoard("Black won !");
+            resultBoard(player2 + " won !");
         }
 
     }
@@ -432,12 +452,34 @@ public class HelloApplication extends Application {
 
         front.add(backgrd,0,0);
 
-        GridPane buttons = new GridPane();
+        GridPane players = new GridPane();
+
+        TextField p1 = new TextField();
+        TextField p2 = new TextField();
+
+        Text player1Name = new Text("Player 1 : ");
+        player1Name.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+        Text player2Name = new Text("Player 2 : ");
+        player2Name.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+
+        players.add(player1Name,0,0);
+        players.add(player2Name,0,1);
+        players.add(p1,1,0);
+        players.add(p2,1,1);
+
+        players.setPadding(new Insets(20,20,20,20));
+        players.setAlignment(Pos.CENTER);
+
+        front.add(players,0,1);
+
+        StackPane buttons = new StackPane();
 
         Button launch = new Button("Play");
         EventHandler<MouseEvent> launchGame = new EventHandler() {
             @Override
             public void handle(Event event) {
+                player1 = p1.getText();
+                player2 = p2.getText();
                 game(stage);
             }
         };
@@ -446,10 +488,10 @@ public class HelloApplication extends Application {
         launch.setPadding(new Insets(20,20,20,20));
         launch.setAlignment(Pos.CENTER);
 
-        buttons.add(launch, 0, 0);
+        buttons.getChildren().add(launch);
         buttons.setAlignment(Pos.CENTER);
 
-        front.add(buttons,0,1);
+        front.add(buttons,0,2);
 
         return front;
 
@@ -477,6 +519,16 @@ public class HelloApplication extends Application {
         EventHandler<MouseEvent> launchGame = new EventHandler() {
             @Override
             public void handle(Event event) {
+                mat = new String[][]{
+                        {"BT", "BK", "BF", "BKi", "BQ", "BF", "BK", "BT"},
+                        {"BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP"},
+                        {"", "", "", "", "", "", "", ""},
+                        {"", "", "", "", "", "", "", ""},
+                        {"", "", "", "", "", "", "", ""},
+                        {"", "", "", "", "", "", "", ""},
+                        {"WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP"},
+                        {"WT", "WK", "WF", "WKi", "WQ", "WF", "WK", "WT"}
+                };
                 game(stage);
             }
         };
@@ -510,8 +562,8 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage st) throws IOException {
-
         stage = st;
+
 
         paths.put("WP", WP);
         paths.put("WT", WT);
