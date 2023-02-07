@@ -3,6 +3,7 @@ package com.example.demo;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -419,6 +420,43 @@ public class HelloApplication extends Application {
 
     }
 
+    private GridPane front(){
+
+        GridPane front = new GridPane();
+
+        front.setStyle("-fx-background-color: DARKGOLDENROD");
+        front.setAlignment(Pos.CENTER);
+
+        StackPane backgrd = new StackPane();
+        backgrd.getChildren().add(new ImageView(new Image("file:background.jpeg")));
+        backgrd.setPadding(new Insets(20,20,20,20));
+        backgrd.setAlignment(Pos.CENTER);
+
+        front.add(backgrd,0,0);
+
+        GridPane buttons = new GridPane();
+
+        Button launch = new Button("Play");
+        EventHandler<MouseEvent> launchGame = new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                game(stage);
+            }
+        };
+        launch.addEventFilter(MouseEvent.MOUSE_PRESSED, launchGame);
+
+        launch.setPadding(new Insets(20,20,20,20));
+        launch.setAlignment(Pos.CENTER);
+
+        buttons.add(launch, 0, 0);
+        buttons.setAlignment(Pos.CENTER);
+
+        front.add(buttons,0,1);
+
+        return front;
+
+    }
+
     @Override
     public void start(Stage st) throws IOException {
 
@@ -445,7 +483,7 @@ public class HelloApplication extends Application {
         paths.put("", noPiece);
 
         stage.setTitle("Chess");
-        stage.setScene(new Scene(setup(w = !w),520,520));
+        stage.setScene(new Scene(front(), 700, 700));
         stage.show();
 
     }
