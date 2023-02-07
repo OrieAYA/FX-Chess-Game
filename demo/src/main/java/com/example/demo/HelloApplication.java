@@ -30,111 +30,6 @@ import java.util.*;
 
 public class HelloApplication extends Application {
 
-
-    /*
-    @Override
-    public void start(Stage stage) throws IOException {
-        MenuButton menu = new MenuButton();
-        GridPane root = new GridPane();
-
-        GridPane node1 = new GridPane();
-        StackPane node2 = new StackPane();
-        GridPane node3 = new GridPane();
-
-        root.setAlignment(Pos.CENTER);
-
-        //Node 1
-        node1.setAlignment(Pos.BASELINE_LEFT);
-        node1.setPadding(new Insets(100,40,0,0));
-
-        node1.add(new Text("Login"),0,0);
-        node1.add(new TextField(),1,0);
-
-        node1.add(new Text("Password"),0,1);
-        node1.add(new PasswordField(),1,1);
-
-        menu.setText("Pays");
-        menu.getItems().add(new MenuItem("France"));
-        menu.getItems().add(new MenuItem("USA"));
-        menu.getItems().add(new MenuItem("Russia"));
-        node1.add(menu,0,2);
-
-        node1.add(new Button("Valider"),1,2);
-
-        //Node 2
-        node2.setAlignment(Pos.CENTER);
-        node2.setPadding(new Insets(40,40,40,40));
-
-        node2.getChildren().add(new Sphere(100));
-        node2.getChildren().add(new Text("Interfaces !"));
-
-        //Node 3
-        node3.setAlignment(Pos.BASELINE_RIGHT);
-        node3.setPadding(new Insets(100,40,0,0));
-
-        node3.add(new CheckBox("Option 1"),0,0);
-        node3.add(new CheckBox("Option 2"),0,1);
-        node3.add(new CheckBox("Option 3"),0,2);
-
-        root.add(node1,0,0);
-        root.add(node2,1,0);
-        root.add(node3,2,0);
-
-        //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(root,1000,500);//fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    @Override
-    public void start(Stage stage) throws IOException {
-
-    GridPane root = new GridPane();
-        GridPane btn = new GridPane();
-        Button insert = new Button("insert");
-        Button delete = new Button("delete");
-        Button close = new Button("close");
-        TextArea text = new TextArea();
-
-        EventHandler<MouseEvent> add = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                text.appendText("Simon");
-            }
-        };
-        insert.addEventFilter(MouseEvent.MOUSE_PRESSED, add);
-        EventHandler<MouseEvent> del = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                text.deletePreviousChar();
-            }
-        };
-        delete.addEventFilter(MouseEvent.MOUSE_PRESSED, del);
-        EventHandler<MouseEvent> cl = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                stage.close();
-            }
-        };
-        close.addEventFilter(MouseEvent.MOUSE_PRESSED, cl);
-
-        root.add(text,0,0);
-        btn.add(insert,0,0);
-        btn.add(delete,1,0);
-        btn.add(close,2,0);
-        root.add(btn,0,1);
-
-
-        //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(root,1000,1000);//fxmlLoader.load(), 320, 240);
-        stage.setTitle("Chess");
-        stage.setScene(scene);
-        stage.show();
-    }
-
-     */
-
     final String WP = "file:WPon.png";
     final String WT = "file:WTower.png";
     final String WK = "file:WKnight.png";
@@ -156,6 +51,9 @@ public class HelloApplication extends Application {
     Stage stage;
 
     final Map<String, String> paths = new HashMap<>();
+
+    List<String> wPieces = Arrays.asList("WP","WT","WK","WF","WKi","WQ");
+    List<String> bPieces = Arrays.asList("BP","BT","BK","BF","BKi","BQ");
 
     String[][] mat = {
             {"BT","BK","BF","BKi","BQ","BF","BK","BT"},
@@ -206,10 +104,214 @@ public class HelloApplication extends Application {
                 setOriginalColors(root);
 
                 switch (mat[finalI][finalJ]){
+
                     case "BP":
-                        possibleMoove(findNode(root,finalJ,finalI+1), finalNode, root);
-                        if(finalI==1){
-                            possibleMoove(findNode(root,finalJ,finalI+2), finalNode, root);
+                        //Bouger
+                        if(mat[finalI+1][finalJ] == "") {
+                            possibleMoove(findNode(root, finalI + 1, finalJ), finalNode, root);
+                            if (finalI == 1 && mat[finalI+2][finalJ] == "") {
+                                possibleMoove(findNode(root, finalI + 2, finalJ), finalNode, root);
+                            }
+                        }
+                        //Manger
+                        if(wPieces.contains(mat[finalI+1][finalJ+1])){
+                            possibleMoove(findNode(root, finalI + 1, finalJ + 1), finalNode, root);
+                        }
+                        if(wPieces.contains(mat[finalI+1][finalJ-1])){
+                            possibleMoove(findNode(root, finalI + 1, finalJ - 1), finalNode, root);
+                        }
+                        break;
+
+                    case "BT":
+                        //Droite
+                        for(int m = finalJ + 1; m<8; m++){
+                            if(bPieces.contains(mat[finalI][m]))break;
+                            else if(wPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Gauche
+                        for(int m = finalJ - 1; m>=0; m--){
+                            if(bPieces.contains(mat[finalI][m]))break;
+                            else if(wPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Bas
+                        for(int m = finalI + 1; m<8; m++){
+                            if(bPieces.contains(mat[m][finalJ]))break;
+                            else if(wPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        //Haut
+                        for(int m = finalI - 1; m>=0; m--){
+                            if(bPieces.contains(mat[m][finalJ]))break;
+                            else if(wPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        break;
+
+                    case "BK":
+                        //Bouger
+                        if(!bPieces.contains(mat[finalI + 2][finalJ + 1]))possibleMoove(findNode(root, finalI + 2, finalJ + 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI + 2][finalJ - 1]))possibleMoove(findNode(root, finalI + 2, finalJ - 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 2][finalJ + 1]))possibleMoove(findNode(root, finalI - 2, finalJ + 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 2][finalJ - 1]))possibleMoove(findNode(root, finalI - 2, finalJ - 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI + 1][finalJ + 2]))possibleMoove(findNode(root, finalI + 1, finalJ + 2), finalNode, root);
+                        if(!bPieces.contains(mat[finalI + 1][finalJ - 2]))possibleMoove(findNode(root, finalI + 1, finalJ - 2), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 1][finalJ + 2]))possibleMoove(findNode(root, finalI - 1, finalJ + 2), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 1][finalJ - 2]))possibleMoove(findNode(root, finalI - 1, finalJ - 2), finalNode, root);
+
+                    case "BF":
+                        int x = finalJ + 1;
+                        int y = finalI - 1;
+                        while(x < 8 && y >= 0){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y--;
+                        }
+                        x = finalJ - 1;
+                        y = finalI - 1;
+                        while(x >= 0 && y >= 0){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y--;
+                        }
+                        x = finalJ + 1;
+                        y = finalI + 1;
+                        while(x < 8 && y < 8){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y++;
+                        }
+                        x = finalJ - 1;
+                        y = finalI + 1;
+                        while(x >= 0 && y < 8){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y++;
+                        }
+                        break;
+
+                    case "BKi":
+                        //Bouger
+                        if(!bPieces.contains(mat[finalI + 1][finalJ + 1]))possibleMoove(findNode(root, finalI + 1, finalJ + 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI][finalJ + 1]))possibleMoove(findNode(root, finalI, finalJ + 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI + 1][finalJ]))possibleMoove(findNode(root, finalI + 1, finalJ), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 1][finalJ + 1]))possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 1][finalJ - 1]))possibleMoove(findNode(root, finalI - 1, finalJ - 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI][finalJ - 1]))possibleMoove(findNode(root, finalI, finalJ - 1), finalNode, root);
+                        if(!bPieces.contains(mat[finalI - 1][finalJ]))possibleMoove(findNode(root, finalI - 1, finalJ), finalNode, root);
+                        if(!bPieces.contains(mat[finalI + 1][finalJ - 1]))possibleMoove(findNode(root, finalI + 1, finalJ - 1), finalNode, root);
+                        break;
+
+                    case "BQ":
+                        //Bouger
+                        //Droite
+                        for(int m = finalJ + 1; m<8; m++){
+                            if(bPieces.contains(mat[finalI][m]))break;
+                            else if(wPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Gauche
+                        for(int m = finalJ - 1; m>=0; m--){
+                            if(bPieces.contains(mat[finalI][m]))break;
+                            else if(wPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Bas
+                        for(int m = finalI + 1; m<8; m++){
+                            if(bPieces.contains(mat[m][finalJ]))break;
+                            else if(wPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        //Haut
+                        for(int m = finalI - 1; m>=0; m--){
+                            if(bPieces.contains(mat[m][finalJ]))break;
+                            else if(wPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        x = finalJ + 1;
+                        y = finalI - 1;
+                        while(x < 8 && y >= 0){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y--;
+                        }
+                        x = finalJ - 1;
+                        y = finalI - 1;
+                        while(x >= 0 && y >= 0){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y--;
+                        }
+                        x = finalJ + 1;
+                        y = finalI + 1;
+                        while(x < 8 && y < 8){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y++;
+                        }
+                        x = finalJ - 1;
+                        y = finalI + 1;
+                        while(x >= 0 && y < 8){
+                            if(bPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(wPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y++;
                         }
                         break;
                 }
@@ -234,9 +336,201 @@ public class HelloApplication extends Application {
 
                 switch (mat[finalI][finalJ]){
                     case "WP":
-                        possibleMoove(findNode(root,finalJ,finalI-1), finalNode, root);
+                        possibleMoove(findNode(root,finalI-1, finalJ), finalNode, root);
                         if(finalI==6){
-                            possibleMoove(findNode(root,finalJ,finalI-2), finalNode, root);
+                            possibleMoove(findNode(root,finalI-2, finalJ), finalNode, root);
+                        }
+                        break;
+                    case "WT":
+                        //Droite
+                        for(int m = finalJ + 1; m<8; m++){
+                            if(wPieces.contains(mat[finalI][m]))break;
+                            else if(bPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Gauche
+                        for(int m = finalJ - 1; m>=0; m--){
+                            if(wPieces.contains(mat[finalI][m]))break;
+                            else if(bPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Bas
+                        for(int m = finalI + 1; m<8; m++){
+                            if(wPieces.contains(mat[m][finalJ]))break;
+                            else if(bPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        //Haut
+                        for(int m = finalI - 1; m>=0; m--){
+                            if(wPieces.contains(mat[m][finalJ]))break;
+                            else if(bPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        break;
+
+                    case "WK":
+                        //Bouger
+                        if(!wPieces.contains(mat[finalI - 2][finalJ + 1]))possibleMoove(findNode(root, finalI - 2, finalJ + 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI - 2][finalJ - 1]))possibleMoove(findNode(root, finalI - 2, finalJ - 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI - 1][finalJ + 2]))possibleMoove(findNode(root, finalI - 1, finalJ + 2), finalNode, root);
+                        if(!wPieces.contains(mat[finalI - 1][finalJ - 2]))possibleMoove(findNode(root, finalI - 1, finalJ - 2), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 1][finalJ + 2]))possibleMoove(findNode(root, finalI + 1, finalJ + 2), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 1][finalJ - 2]))possibleMoove(findNode(root, finalI + 1, finalJ - 2), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 2][finalJ + 1]))possibleMoove(findNode(root, finalI + 2, finalJ + 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 2][finalJ - 1]))possibleMoove(findNode(root, finalI + 2, finalJ - 1), finalNode, root);
+
+                    case "WF":
+                        int x = finalJ + 1;
+                        int y = finalI - 1;
+                        while(x < 8 && y >= 0){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y--;
+                        }
+                        x = finalJ - 1;
+                        y = finalI - 1;
+                        while(x >= 0 && y >= 0){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y--;
+                        }
+                        x = finalJ + 1;
+                        y = finalI + 1;
+                        while(x < 8 && y < 8){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y++;
+                        }
+                        x = finalJ - 1;
+                        y = finalI + 1;
+                        while(x >= 0 && y < 8){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y++;
+                        }
+                        break;
+
+                    case "WKi":
+                        //Bouger
+                        if(!wPieces.contains(mat[finalI - 1][finalJ - 1]))possibleMoove(findNode(root, finalI - 1, finalJ - 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI][finalJ - 1]))possibleMoove(findNode(root, finalI, finalJ - 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI - 1][finalJ]))possibleMoove(findNode(root, finalI - 1, finalJ), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 1][finalJ - 1]))possibleMoove(findNode(root, finalI + 1, finalJ - 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 1][finalJ + 1]))possibleMoove(findNode(root, finalI + 1, finalJ + 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI][finalJ + 1]))possibleMoove(findNode(root, finalI, finalJ + 1), finalNode, root);
+                        if(!wPieces.contains(mat[finalI + 1][finalJ]))possibleMoove(findNode(root, finalI + 1, finalJ), finalNode, root);
+                        if(!wPieces.contains(mat[finalI - 1][finalJ + 1]))possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
+                        break;
+
+                    case "WQ":
+                        //Bouger
+                        //Droite
+                        for(int m = finalJ + 1; m<8; m++){
+                            if(wPieces.contains(mat[finalI][m]))break;
+                            else if(bPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Gauche
+                        for(int m = finalJ - 1; m>=0; m--){
+                            if(wPieces.contains(mat[finalI][m]))break;
+                            else if(bPieces.contains(mat[finalI][m])){
+                                possibleMoove(findNode(root, finalI, m), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, finalI, m), finalNode, root);
+                        }
+                        //Bas
+                        for(int m = finalI + 1; m<8; m++){
+                            if(wPieces.contains(mat[m][finalJ]))break;
+                            else if(bPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        //Haut
+                        for(int m = finalI - 1; m>=0; m--){
+                            if(wPieces.contains(mat[m][finalJ]))break;
+                            else if(bPieces.contains(mat[m][finalJ])){
+                                possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                                break;
+                            }
+                            possibleMoove(findNode(root, m, finalJ), finalNode, root);
+                        }
+                        x = finalJ + 1;
+                        y = finalI - 1;
+                        while(x < 8 && y >= 0){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y--;
+                        }
+                        x = finalJ - 1;
+                        y = finalI - 1;
+                        while(x >= 0 && y >= 0){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y--;
+                        }
+                        x = finalJ + 1;
+                        y = finalI + 1;
+                        while(x < 8 && y < 8){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x++;
+                            y++;
+                        }
+                        x = finalJ - 1;
+                        y = finalI + 1;
+                        while(x >= 0 && y < 8){
+                            if(wPieces.contains(mat[y][x]))break;
+                            else{
+                                possibleMoove(findNode(root, y, x), finalNode, root);
+                                if(bPieces.contains(mat[y][x]))break;
+                            }
+                            x--;
+                            y++;
                         }
                         break;
                 }
@@ -278,7 +572,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    private Node findNode(GridPane gridPane, int col, int row) {
+    private Node findNode(GridPane gridPane, int row, int col) {
         for (Node node : gridPane.getChildren()) {
             if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
                 return node;
@@ -287,10 +581,18 @@ public class HelloApplication extends Application {
         return null;
     }
 
+    private boolean verifWin(){
+        return false;
+    }
+
     private void game(Stage stage){
 
         stage.setScene(new Scene(setup(w = !w),520,520));
         stage.show();
+
+        if(verifWin()){
+
+        }
 
     }
 
