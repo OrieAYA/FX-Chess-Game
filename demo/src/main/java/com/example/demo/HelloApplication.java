@@ -57,6 +57,8 @@ public class HelloApplication extends Application {
 
     List<Integer> possibleValues = Arrays.asList(0,1,2,3,4,5,6,7);
 
+    boolean canMoove = false;
+
     String[][] mat = {
             {"BT","BK","BF","BKi","BQ","BF","BK","BT"},
             {"BP","BP","BP","BP","BP","BP","BP","BP"},
@@ -70,6 +72,8 @@ public class HelloApplication extends Application {
 
     private GridPane setup(boolean white){
 
+        canMoove = false;
+
         GridPane root = new GridPane();
         StackPane node;
 
@@ -80,8 +84,11 @@ public class HelloApplication extends Application {
                 node.getChildren().add(new ImageView(new Image(paths.get(mat[i][j]))));
                 node.setPadding(new Insets(20,20,20,20));
 
-                if(white)node.addEventFilter(MouseEvent.MOUSE_PRESSED, showMoovesW(i, j, node, root));
-                else node.addEventFilter(MouseEvent.MOUSE_PRESSED, showMoovesB(i, j, node, root));
+                EventHandler ev = showMooves(i, j, node, root);
+
+                if(ev != null)canMoove = true;
+
+                node.addEventFilter(MouseEvent.MOUSE_PRESSED, ev);
 
                 root.add(node, j, i);
 
@@ -93,7 +100,7 @@ public class HelloApplication extends Application {
         return root;
     }
 
-    private EventHandler showMoovesB(int i, int j, StackPane node, GridPane root){
+    private EventHandler showMooves(int i, int j, StackPane node, GridPane root){
 
         int finalI = i;
         int finalJ = j;
@@ -105,102 +112,89 @@ public class HelloApplication extends Application {
 
                 setOriginalColors(root);
 
-                switch (mat[finalI][finalJ]){
+                if(!w) {
 
-                    case "BP":
-                        //Bouger
-                        if(mat[finalI+1][finalJ] == "") {
-                            possibleMoove(findNode(root, finalI + 1, finalJ), finalNode, root);
-                            if (finalI == 1 && mat[finalI+2][finalJ] == "") {
-                                possibleMoove(findNode(root, finalI + 2, finalJ), finalNode, root);
+                    switch (mat[finalI][finalJ]) {
+
+                        case "BP":
+                            //Bouger
+                            if (mat[finalI + 1][finalJ] == "") {
+                                possibleMoove(findNode(root, finalI + 1, finalJ), finalNode, root);
+                                if (finalI == 1 && mat[finalI + 2][finalJ] == "") {
+                                    possibleMoove(findNode(root, finalI + 2, finalJ), finalNode, root);
+                                }
                             }
-                        }
-                        //Manger
-                        if(wPieces.contains(mat[finalI+1][finalJ+1])){
-                            possibleMoove(findNode(root, finalI + 1, finalJ + 1), finalNode, root);
-                        }
-                        if(wPieces.contains(mat[finalI+1][finalJ-1])){
-                            possibleMoove(findNode(root, finalI + 1, finalJ - 1), finalNode, root);
-                        }
-                        break;
+                            //Manger
+                            if (wPieces.contains(mat[finalI + 1][finalJ + 1])) {
+                                possibleMoove(findNode(root, finalI + 1, finalJ + 1), finalNode, root);
+                            }
+                            if (wPieces.contains(mat[finalI + 1][finalJ - 1])) {
+                                possibleMoove(findNode(root, finalI + 1, finalJ - 1), finalNode, root);
+                            }
+                            break;
 
-                    case "BT":
-                        towerMoove(bPieces, wPieces,finalI,finalJ,finalNode,root);
-                        break;
+                        case "BT":
+                            towerMoove(bPieces, wPieces, finalI, finalJ, finalNode, root);
+                            break;
 
-                    case "BK":
-                        knightMoove(bPieces, finalI, finalJ, finalNode, root);
-                        break;
+                        case "BK":
+                            knightMoove(bPieces, finalI, finalJ, finalNode, root);
+                            break;
 
-                    case "BF":
-                        fouMoove(bPieces, wPieces,finalI,finalJ,finalNode,root);
-                        break;
+                        case "BF":
+                            fouMoove(bPieces, wPieces, finalI, finalJ, finalNode, root);
+                            break;
 
-                    case "BKi":
-                        kingMoove(bPieces, root, finalI, finalJ, finalNode);
-                        break;
+                        case "BKi":
+                            kingMoove(bPieces, root, finalI, finalJ, finalNode);
+                            break;
 
-                    case "BQ":
-                        queenMoove(bPieces, wPieces,finalI,finalJ,finalNode,root);
-                        break;
+                        case "BQ":
+                            queenMoove(bPieces, wPieces, finalI, finalJ, finalNode, root);
+                            break;
+                    }
                 }
 
-            }
-        };
+                else {
 
-        return showMooves;
-    }
-
-    private EventHandler showMoovesW(int i, int j, StackPane node, GridPane root){
-
-        int finalI = i;
-        int finalJ = j;
-        StackPane finalNode = node;
-
-        EventHandler<MouseEvent> showMooves = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-
-                setOriginalColors(root);
-
-                switch (mat[finalI][finalJ]){
-                    case "WP":
-                        if(mat[finalI-1][finalJ] == "") {
-                            possibleMoove(findNode(root, finalI - 1, finalJ), finalNode, root);
-                            if (finalI == 6) {
-                                possibleMoove(findNode(root, finalI - 2, finalJ), finalNode, root);
+                    switch (mat[finalI][finalJ]) {
+                        case "WP":
+                            if (mat[finalI - 1][finalJ] == "") {
+                                possibleMoove(findNode(root, finalI - 1, finalJ), finalNode, root);
+                                if (finalI == 6) {
+                                    possibleMoove(findNode(root, finalI - 2, finalJ), finalNode, root);
+                                }
                             }
-                        }
-                        //Manger
-                        if(bPieces.contains(mat[finalI-1][finalJ-1])){
-                            possibleMoove(findNode(root, finalI - 1, finalJ - 1), finalNode, root);
-                        }
-                        if(bPieces.contains(mat[finalI-1][finalJ+1])){
-                            possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
-                        }
-                        break;
+                            //Manger
+                            if (bPieces.contains(mat[finalI - 1][finalJ - 1])) {
+                                possibleMoove(findNode(root, finalI - 1, finalJ - 1), finalNode, root);
+                            }
+                            if (bPieces.contains(mat[finalI - 1][finalJ + 1])) {
+                                possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
+                            }
+                            break;
 
-                    case "WT":
-                        towerMoove(wPieces, bPieces,finalI,finalJ,finalNode,root);
-                        break;
+                        case "WT":
+                            towerMoove(wPieces, bPieces, finalI, finalJ, finalNode, root);
+                            break;
 
-                    case "WK":
-                        knightMoove(wPieces, finalI, finalJ, finalNode, root);
-                        break;
+                        case "WK":
+                            knightMoove(wPieces, finalI, finalJ, finalNode, root);
+                            break;
 
-                    case "WF":
-                        fouMoove(wPieces, bPieces,finalI,finalJ,finalNode,root);
-                        break;
+                        case "WF":
+                            fouMoove(wPieces, bPieces, finalI, finalJ, finalNode, root);
+                            break;
 
-                    case "WKi":
-                        kingMoove(wPieces, root, finalI, finalJ, finalNode);
-                        break;
+                        case "WKi":
+                            kingMoove(wPieces, root, finalI, finalJ, finalNode);
+                            break;
 
-                    case "WQ":
-                        queenMoove(wPieces, bPieces,finalI,finalJ,finalNode,root);
-                        break;
+                        case "WQ":
+                            queenMoove(wPieces, bPieces, finalI, finalJ, finalNode, root);
+                            break;
+                    }
                 }
-
             }
         };
 
@@ -346,7 +340,7 @@ public class HelloApplication extends Application {
             possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
             canMoove = true;
         }
-        return canMoove;
+        return !canMoove;
     }
 
     private void possibleMoove(Node node, StackPane act, GridPane root){
@@ -397,17 +391,30 @@ public class HelloApplication extends Application {
         return null;
     }
 
-    private boolean verifWin(){
-        return false;
+    private boolean KiExist(String king){
+
+        boolean is = false;
+
+        for(String[] i : mat){
+            for(String j : i){
+                if(j == king)is = true;
+            }
+        }
+
+        return is;
     }
 
     private void game(Stage stage){
 
-        stage.setScene(new Scene(setup(w = !w),520,520));
+        stage.setScene(new Scene(setup(w = !w), 520, 520));
         stage.show();
 
-        if(verifWin()){
-
+        if(!w && !KiExist("BKi")){
+            System.out.println("W");
+            stage.close();
+        } else if (w && !KiExist("WKi")) {
+            System.out.println("B");
+            stage.close();
         }
 
     }
