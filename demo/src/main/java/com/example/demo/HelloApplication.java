@@ -411,11 +411,9 @@ public class HelloApplication extends Application {
         stage.show();
 
         if(!w && !KiExist("BKi")){
-            System.out.println("W");
-            stage.close();
+            resultBoard("White won !");
         } else if (w && !KiExist("WKi")) {
-            System.out.println("B");
-            stage.close();
+            resultBoard("Black won !");
         }
 
     }
@@ -454,6 +452,59 @@ public class HelloApplication extends Application {
         front.add(buttons,0,1);
 
         return front;
+
+    }
+
+    private void resultBoard(String resultGame){
+
+        GridPane board = new GridPane();
+
+        board.setStyle("-fx-background-color: DARKGOLDENROD");
+        board.setAlignment(Pos.CENTER);
+
+        StackPane results = new StackPane();
+        Text result = new Text(resultGame);
+        result.setStyle("-fx-font-weight: bold; -fx-font-size: 25px;");
+        results.getChildren().add(result);
+        results.setPadding(new Insets(20,20,20,20));
+        results.setAlignment(Pos.CENTER);
+
+        board.add(results,0,0);
+
+        GridPane buttons = new GridPane();
+
+        Button launch = new Button("Play Again");
+        EventHandler<MouseEvent> launchGame = new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                game(stage);
+            }
+        };
+        launch.addEventFilter(MouseEvent.MOUSE_PRESSED, launchGame);
+
+        launch.setPadding(new Insets(20,20,20,20));
+        launch.setAlignment(Pos.CENTER);
+
+        Button close = new Button("Close");
+        EventHandler<MouseEvent> closeGame = new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                stage.close();
+            }
+        };
+        close.addEventFilter(MouseEvent.MOUSE_PRESSED, closeGame);
+
+        close.setPadding(new Insets(20,20,20,20));
+        close.setAlignment(Pos.CENTER);
+
+        buttons.add(launch, 0, 0);
+        buttons.add(close,1,0);
+        buttons.setAlignment(Pos.CENTER);
+
+        board.add(buttons,0,1);
+
+        stage.setScene(new Scene(board, 700, 700));
+        stage.show();
 
     }
 
