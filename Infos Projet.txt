@@ -1,0 +1,19 @@
+CREPIN Simon
+PINAUD Marius
+RISACHER Adrien
+
+Fonctionnalités :
+
+ - Lancer une partie avec un nom pour chaque joeur : événement LaunchGame ligne 523
+
+ - Jouer au jeu d'échec de manière classique :
+
+    * Montrer les mouvements d'une pièce en cliquant dessus ( cases disponnibles en Jaune ) : showMooves ligne 114
+
+    * Bouger une pièce en cliquant dessus ( cases disponnibles en Jaune ) : possibleMoove ligne 412
+
+    * Bouger le Roi en rock : possibleRock ligne 375
+
+ - Relancer une partie sur l'écran des résultats
+
+ - Fermer l'application sur l'écran des résultats

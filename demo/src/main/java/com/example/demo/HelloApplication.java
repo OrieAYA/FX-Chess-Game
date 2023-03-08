@@ -1,16 +1,11 @@
 package com.example.demo;
 
 import javafx.application.Application;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -18,15 +13,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class HelloApplication extends Application {
@@ -139,17 +129,17 @@ public class HelloApplication extends Application {
 
                         case "BP":
                             //Bouger
-                            if (mat[finalI + 1][finalJ] == "") {
+                            if ((possibleValues.contains(finalI + 1)) && mat[finalI + 1][finalJ] == "") {
                                 possibleMoove(findNode(root, finalI + 1, finalJ), finalNode, root);
                                 if (finalI == 1 && mat[finalI + 2][finalJ] == "") {
                                     possibleMoove(findNode(root, finalI + 2, finalJ), finalNode, root);
                                 }
                             }
                             //Manger
-                            if (wPieces.contains(mat[finalI + 1][finalJ + 1])) {
+                            if ((possibleValues.contains(finalI + 1) && possibleValues.contains(finalJ + 1)) && wPieces.contains(mat[finalI + 1][finalJ + 1])) {
                                 possibleMoove(findNode(root, finalI + 1, finalJ + 1), finalNode, root);
                             }
-                            if (wPieces.contains(mat[finalI + 1][finalJ - 1])) {
+                            if ((possibleValues.contains(finalI + 1) && possibleValues.contains(finalJ - 1)) && wPieces.contains(mat[finalI + 1][finalJ - 1])) {
                                 possibleMoove(findNode(root, finalI + 1, finalJ - 1), finalNode, root);
                             }
                             break;
@@ -180,17 +170,17 @@ public class HelloApplication extends Application {
 
                     switch (mat[finalI][finalJ]) {
                         case "WP":
-                            if (mat[finalI - 1][finalJ] == "") {
+                            if ((possibleValues.contains(finalI - 1)) && mat[finalI - 1][finalJ] == "") {
                                 possibleMoove(findNode(root, finalI - 1, finalJ), finalNode, root);
-                                if (finalI == 6) {
+                                if (finalI == 6 && mat[finalI - 2][finalJ] == "") {
                                     possibleMoove(findNode(root, finalI - 2, finalJ), finalNode, root);
                                 }
                             }
                             //Manger
-                            if (bPieces.contains(mat[finalI - 1][finalJ - 1])) {
+                            if ((possibleValues.contains(finalI - 1) && possibleValues.contains(finalJ - 1)) && bPieces.contains(mat[finalI - 1][finalJ - 1])) {
                                 possibleMoove(findNode(root, finalI - 1, finalJ - 1), finalNode, root);
                             }
-                            if (bPieces.contains(mat[finalI - 1][finalJ + 1])) {
+                            if ((possibleValues.contains(finalI - 1) && possibleValues.contains(finalJ + 1)) && bPieces.contains(mat[finalI - 1][finalJ + 1])) {
                                 possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
                             }
                             break;
@@ -361,7 +351,62 @@ public class HelloApplication extends Application {
             possibleMoove(findNode(root, finalI - 1, finalJ + 1), finalNode, root);
             canMoove = true;
         }
+        if(finalI == 0 || finalI == 0){
+            boolean moove = true;
+            for(int i = finalJ; i < 7; i++){
+                if(mat[finalI][i] != "")moove = false;
+            }
+            if(moove && (mat[finalI][7] == "WT" || mat[finalI][7] == "BT")){
+                possibleRock(findNode(root, finalI, 6), finalNode, root, true);
+                canMoove = true;
+            }
+            moove = true;
+            for(int i = finalJ; i > 0; i--){
+                if(mat[finalI][i] != "")moove = false;
+            }
+            if(moove && (mat[finalI][0] == "WT" || mat[finalI][0] == "BT")){
+                possibleRock(findNode(root, finalI, 1), finalNode, root, false);
+                canMoove = true;
+            }
+        }
         return !canMoove;
+    }
+
+    private void possibleRock(Node node, StackPane act, GridPane root, boolean isOnRight){
+
+        EventHandler<MouseEvent> moove = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+
+                StackPane n = (StackPane) node;
+                mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = mat[GridPane.getRowIndex(act)][GridPane.getColumnIndex(act)];
+
+                mat[GridPane.getRowIndex(act)][GridPane.getColumnIndex(act)] = "";
+
+                String p = mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)];
+
+                if(isOnRight){
+                    mat[GridPane.getRowIndex(n)][5] = mat[GridPane.getRowIndex(n)][7];
+                    mat[GridPane.getRowIndex(n)][7] = "";
+                }
+                else{
+                    mat[GridPane.getRowIndex(n)][2] = mat[GridPane.getRowIndex(n)][0];
+                    mat[GridPane.getRowIndex(n)][0] = "";
+                }
+
+                if(p == "WP" && GridPane.getRowIndex(n) == 0) {
+                    mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = "WQ";
+                } else if (p == "BP" && GridPane.getRowIndex(n) == 7) {
+                    mat[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = "BQ";
+                }
+
+                game(stage);
+            }
+        };
+
+        node.setStyle("-fx-background-color: YELLOW");
+        node.addEventFilter(MouseEvent.MOUSE_PRESSED, moove);
+
     }
 
     private void possibleMoove(Node node, StackPane act, GridPane root){
